@@ -10,8 +10,8 @@ namespace Graphics
 	{
 	public:
 		DECLARE_WND_CLASS_EX(L"PCGraphicsWindow", CS_VREDRAW | CS_HREDRAW, -1)
-		int Width;
-		int Height;
+		unsigned int Width;
+		unsigned int Height;
 		HWND Handle;
 		bool PostQuitWhenDestroyed;
 

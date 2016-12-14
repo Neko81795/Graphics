@@ -1,5 +1,9 @@
 #include "Color.h"
+
+#pragma warning(push, 0)
+#include <d3d11_4.h>
 #include <memory>
+#pragma warning(pop)
 
 namespace Graphics
 {
@@ -28,7 +32,17 @@ namespace Graphics
 		return *this;
 	}
 
+	float Color::operator[](int i)
+	{
+		return RGBA[i];
+	}
+
 	Color::operator float*()
+	{
+		return RGBA;
+	}
+
+	Color::operator const float*() const
 	{
 		return RGBA;
 	}

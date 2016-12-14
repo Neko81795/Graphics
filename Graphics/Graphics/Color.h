@@ -26,7 +26,9 @@ namespace Graphics
 		Color(const float* rgba, bool alpha);
 		Color(const Color& color);
 
-		Color& operator=(Color& rhs);
 		operator float*();
+		operator const float*() const;
+		Color& operator=(Color& rhs);
+		float operator[](int i);
 	};
 }

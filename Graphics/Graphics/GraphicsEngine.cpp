@@ -4,9 +4,9 @@
 
 namespace Graphics
 {
-	GraphicsEngine::GraphicsEngine(bool CreateForDebug)
+	GraphicsEngine::GraphicsEngine(Window& win, bool CreateForDebug) : Win(win)
 	{
-		UINT flag;
+		UINT flag = 0;
 		if (CreateForDebug)
 			flag = DXGI_CREATE_FACTORY_DEBUG;
 
@@ -72,6 +72,47 @@ namespace Graphics
 
 		if (!GetRefreshRate())
 			throw std::exception("Failed to poll refresh rate");
+
+		if (!CreateDeviceDependentResources())
+			throw std::exception("Failed to create device dependent resources");
+	}
+
+	bool GraphicsEngine::CreateDeviceDependentResources()
+	{
+		if (!CreateSwapChain())
+			return false;
+
+		if (!CreateBackBuffer())
+			return false;
+
+		return true;
+	}
+
+	void GraphicsEngine::ClearScreen(const Color & color)
+	{
+		DeviceContext->ClearRenderTargetView(RenderTargetView.Get(), color);
+		DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH, 1.0f, 0);
+	}
+
+	void GraphicsEngine::DrawQueued()
+	{
+	}
+
+	void GraphicsEngine::Present()
+	{
+		switch (VSync)
+		{
+		case GraphicsEngine::On:
+			SwapChain->Present(1, 0);
+			break;
+		case GraphicsEngine::Half:
+			SwapChain->Present(2, 0);
+			break;
+		case GraphicsEngine::Off:
+		default:
+			SwapChain->Present(0, 0);
+			break;
+		}
 	}
 
 	bool GraphicsEngine::GetRefreshRate()
@@ -107,6 +148,126 @@ namespace Graphics
 
 		//clear the comptr we don't need
 		adapterOutput.Reset();
+		return true;
+	}
+	
+	bool GraphicsEngine::CreateSwapChain()
+	{
+		//describe the swap chain we want
+		DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
+		DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapChainFullScreenDesc = {};
+
+		swapChainDesc.BufferCount = 1; //single buffered
+		swapChainDesc.Width = Win.Width;
+		swapChainDesc.Height = Win.Height;
+		swapChainDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+
+		swapChainFullScreenDesc.RefreshRate = RefreshRate;
+		swapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING::DXGI_MODE_SCALING_CENTERED;
+		swapChainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER::DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		swapChainFullScreenDesc.Windowed = true; // start windowed
+
+		//no multi-sampling
+		swapChainDesc.SampleDesc.Count = 1;
+		swapChainDesc.SampleDesc.Quality = 0;
+
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_DISCARD;
+
+		//get the swap chain
+		ComPtr<IDXGISwapChain1> swap;
+		if (FAILED(Factory->CreateSwapChainForHwnd(Device.Get(), Win.Handle, &swapChainDesc, &swapChainFullScreenDesc, nullptr, swap.GetAddressOf())))
+			return false;
+
+		//now make it a swap chain3
+		SwapChain.Reset();
+		if (FAILED(swap.As(&SwapChain)))
+			return false;
+		swap.Reset();
+
+		return true;
+	}
+	
+	bool GraphicsEngine::CreateBackBuffer()
+	{
+		//get the backBuffer
+		ComPtr<ID3D11Texture2D> backBuffer;
+
+		if (FAILED(SwapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer))))
+			return false;
+
+		//create the render target view
+		if (FAILED(Device->CreateRenderTargetView(backBuffer.Get(), nullptr, RenderTargetView.ReleaseAndGetAddressOf())))
+			return false;
+
+
+		//describe the depth stencil buffer
+		D3D11_TEXTURE2D_DESC depthBufferDesc{};
+		depthBufferDesc.Width = Win.Width;
+		depthBufferDesc.Height = Win.Height;
+		depthBufferDesc.MipLevels = 1;
+		depthBufferDesc.ArraySize = 1;
+		depthBufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthBufferDesc.SampleDesc.Count = 1;
+		depthBufferDesc.SampleDesc.Quality = 0;
+		depthBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+		depthBufferDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_DEPTH_STENCIL;
+		depthBufferDesc.CPUAccessFlags = 0; //no access
+		depthBufferDesc.MiscFlags = 0;
+
+		//create the depth stencil buffer
+		if (FAILED(Device->CreateTexture2D(&depthBufferDesc, nullptr, DepthStencilBuffer.ReleaseAndGetAddressOf())))
+			return false;
+
+		//describe the depth stencil state
+		D3D11_DEPTH_STENCIL_DESC depthStencilDesc{};
+
+		depthStencilDesc.DepthEnable = true;
+		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
+
+		depthStencilDesc.StencilEnable = true;
+		depthStencilDesc.StencilReadMask = 0xFF;
+		depthStencilDesc.StencilWriteMask = 0xFF;
+
+		//what to do when we fail stencil testing?
+		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+		//what to do when we pass stencil testing, but fail depth testing?
+		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_INCR;
+		//what to do when both pass?
+		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_ALWAYS;
+
+		//what to do when we fail stencil testing?
+		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+		//what to do when we pass stencil testing, but fail depth testing?
+		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_INCR;
+		//what to do when both pass?
+		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
+		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_ALWAYS;
+
+		//create the depth stencil state
+		if (FAILED(Device->CreateDepthStencilState(&depthStencilDesc, DepthStencilState.ReleaseAndGetAddressOf())))
+			return false;
+		
+		//set the state
+		DeviceContext->OMSetDepthStencilState(DepthStencilState.Get(), 1);
+
+		//describe the depth stencil view
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
+
+		depthStencilViewDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION::D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+		//create the depth stencil view
+		if (FAILED(Device->CreateDepthStencilView(DepthStencilBuffer.Get(), &depthStencilViewDesc, DepthStencilView.ReleaseAndGetAddressOf())))
+			return false;
+
+
+		//set the render target
+		DeviceContext->OMSetRenderTargets(1, RenderTargetView.GetAddressOf(), DepthStencilView.Get());
+
 		return true;
 	}
 }

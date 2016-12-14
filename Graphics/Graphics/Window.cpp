@@ -34,8 +34,8 @@ namespace Graphics
 	{
 		RECT rect{};
 		GetClientRect(&rect);
-		Width = rect.right - rect.left;
-		Height = rect.bottom - rect.top;
+		Width = static_cast<unsigned int>(rect.right - rect.left);
+		Height = static_cast<unsigned int>(rect.bottom - rect.top);
 		InvalidateRect(&rect);
 		return 0;
 	}

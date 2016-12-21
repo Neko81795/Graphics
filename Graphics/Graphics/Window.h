@@ -23,6 +23,7 @@ namespace Graphics
 			MESSAGE_HANDLER(WM_PAINT, Paint)
 			MESSAGE_HANDLER(WM_DESTROY, Destroy)
 			MESSAGE_HANDLER(WM_SIZE, Resize)
+			MESSAGE_HANDLER(WM_EXITSIZEMOVE, ResizeExit)
 			MESSAGE_HANDLER(WM_DISPLAYCHANGE, DisplayChange)
 		END_MSG_MAP()
 
@@ -32,5 +33,6 @@ namespace Graphics
 		LRESULT Destroy(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT Resize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT DisplayChange(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT ResizeExit(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 	};
 }

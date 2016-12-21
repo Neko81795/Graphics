@@ -54,7 +54,7 @@ namespace Graphics
 		pShader = &shader;
 		//define the vertex buffer
 		D3D11_BUFFER_DESC vbDesc{};
-		vbDesc.ByteWidth = sizeof(Vertex) * Vertices.size();
+		vbDesc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * Vertices.size());
 		vbDesc.StructureByteStride = sizeof(Vertex);
 		vbDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 
@@ -75,7 +75,7 @@ namespace Graphics
 
 		//define the index buffer
 		D3D11_BUFFER_DESC ibDesc{};
-		ibDesc.ByteWidth = sizeof(Vertex) * Vertices.size();
+		ibDesc.ByteWidth = static_cast<UINT>(sizeof(Vertex) * Vertices.size());
 		ibDesc.StructureByteStride = sizeof(Vertex);
 		ibDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 

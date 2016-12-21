@@ -160,7 +160,7 @@ namespace Graphics
 	void GraphicsEngine::Draw(const Mesh& mesh)
 	{
 		mesh.Use();
-		DeviceContext->DrawIndexed(mesh.GetIndices().size(), 0, 0);
+		DeviceContext->DrawIndexed(static_cast<UINT>(mesh.GetIndices().size()), 0, 0);
 	}
 
 	void GraphicsEngine::Present()

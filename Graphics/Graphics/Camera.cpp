@@ -8,7 +8,7 @@ namespace Graphics
 		FOV = DirectX::XMConvertToRadians(70);
 		Near = 0.01f;
 		Far = 1000;
-		Look = Vector4(0, 0, -1, 0);
+		Look = Vector4(0, 0, 1, 0);
 
 		CreateCameraViewMatrix();
 		auto& mat = CameraBuffer.GetDataForWrite();

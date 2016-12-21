@@ -30,13 +30,20 @@ namespace Graphics
 		return 0;
 	}
 
-	LRESULT Window::Resize(UINT /*msg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & /*handled*/)
+	LRESULT Window::Resize(UINT /*msg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL & /*handled*/)
 	{
 		RECT rect{};
 		GetClientRect(&rect);
 		Width = static_cast<unsigned int>(rect.right - rect.left);
 		Height = static_cast<unsigned int>(rect.bottom - rect.top);
 		InvalidateRect(&rect);
+
+		if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED)
+		{
+			if (onResize)
+				onResize();
+		}
+
 		return 0;
 	}
 

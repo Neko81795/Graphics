@@ -37,6 +37,8 @@ namespace Graphics
 		Width = static_cast<unsigned int>(rect.right - rect.left);
 		Height = static_cast<unsigned int>(rect.bottom - rect.top);
 		InvalidateRect(&rect);
+		if (onResize)
+			onResize();
 		return 0;
 	}
 

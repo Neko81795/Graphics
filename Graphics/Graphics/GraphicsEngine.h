@@ -18,14 +18,23 @@ using Microsoft::WRL::ComPtr;
 
 namespace Graphics
 {
+	struct Mesh;
+
 	class GraphicsEngine
 	{
+		static friend void Res();
 	public:
 		enum VSyncType
 		{
 			Off,
 			On,
 			Half
+		};
+		enum BlendMode
+		{
+			Multiply,
+			Additive,
+			Subtractive
 		};
 
 		ComPtr<ID3D11Device4> Device;
@@ -41,6 +50,7 @@ namespace Graphics
 		ComPtr<ID3D11Texture2D> DepthStencilBuffer;
 		ComPtr<ID3D11DepthStencilState> DepthStencilState;
 		ComPtr<ID3D11DepthStencilView> DepthStencilView;
+		ComPtr<ID3D11BlendState1> BlendState;
 		D3D11_VIEWPORT ViewPort;
 		Window& Win;
 		VSyncType VSync;
@@ -49,7 +59,8 @@ namespace Graphics
 
 		bool CreateDeviceDependentResources();
 		void ClearScreen(const Color& col = Color(0, 0.5f, 1, 1));
-		void DrawQueued();
+		void SetBlendMode(BlendMode blendMode);
+		void Draw(const Mesh& mesh);
 		void Present();
 
 	private:

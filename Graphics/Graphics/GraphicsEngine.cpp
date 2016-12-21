@@ -1,9 +1,25 @@
 #include "GraphicsEngine.h"
 #include <exception>
 #include <vector>
+#include "Mesh.h"
 
 namespace Graphics
 {
+	static GraphicsEngine* GlobalEngine;
+
+	void Res()
+	{
+		GlobalEngine->DeviceContext->ClearState();
+		GlobalEngine->RenderTargetView.Reset();
+		GlobalEngine->DepthStencilView.Reset();
+
+		HRESULT res = GlobalEngine->SwapChain->ResizeBuffers(0, GlobalEngine->Win.Width, GlobalEngine->Win.Height, DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+		if (FAILED(res))
+			GlobalEngine->CreateDeviceDependentResources();
+		else
+			GlobalEngine->CreateBackBuffer();
+	}
+
 	GraphicsEngine::GraphicsEngine(Window& win, bool CreateForDebug) : Win(win)
 	{
 		UINT flag = 0;
@@ -75,6 +91,10 @@ namespace Graphics
 
 		if (!CreateDeviceDependentResources())
 			throw std::exception("Failed to create device dependent resources");
+
+		GlobalEngine = this;
+
+		Win.onResize = Res;
 	}
 
 	bool GraphicsEngine::CreateDeviceDependentResources()
@@ -85,6 +105,8 @@ namespace Graphics
 		if (!CreateBackBuffer())
 			return false;
 
+		SetBlendMode(BlendMode::Multiply);
+
 		return true;
 	}
 
@@ -92,10 +114,53 @@ namespace Graphics
 	{
 		DeviceContext->ClearRenderTargetView(RenderTargetView.Get(), color);
 		DeviceContext->ClearDepthStencilView(DepthStencilView.Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		ViewPort.TopLeftX = 0;
+		ViewPort.TopLeftY = 0;
+		ViewPort.Height = static_cast<float>(Win.Height);
+		ViewPort.Width = static_cast<float>(Win.Width);
+		ViewPort.MaxDepth = 1.0f;
+		ViewPort.MinDepth = 0.0f;
+		DeviceContext->RSSetViewports(1, &ViewPort);
+		DeviceContext->OMSetBlendState(BlendState.Get(), nullptr, 0xffffffff);
 	}
 
-	void GraphicsEngine::DrawQueued()
+	void GraphicsEngine::SetBlendMode(BlendMode blendMode)
 	{
+		D3D11_BLEND_DESC1 blendStateDesc{};
+
+		blendStateDesc.RenderTarget[0].BlendEnable = true;
+		switch (blendMode)
+		{
+		case Graphics::GraphicsEngine::Multiply:
+			blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+			blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
+			blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+			break;
+		case Graphics::GraphicsEngine::Additive:
+			blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+			blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+			blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+			break;
+		case Graphics::GraphicsEngine::Subtractive:
+			blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+			blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+			blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_REV_SUBTRACT;
+			break;
+		}
+
+		blendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
+		blendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_DEST_ALPHA;
+		blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		blendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		Device->CreateBlendState1(&blendStateDesc, BlendState.ReleaseAndGetAddressOf());
+	}
+
+	void GraphicsEngine::Draw(const Mesh& mesh)
+	{
+		mesh.Use();
+		DeviceContext->DrawIndexed(mesh.GetIndices().size(), 0, 0);
 	}
 
 	void GraphicsEngine::Present()

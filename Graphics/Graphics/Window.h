@@ -26,6 +26,8 @@ namespace Graphics
 			MESSAGE_HANDLER(WM_DISPLAYCHANGE, DisplayChange)
 		END_MSG_MAP()
 
+		void(*onResize)();
+
 		LRESULT Paint(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT Destroy(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT Resize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);

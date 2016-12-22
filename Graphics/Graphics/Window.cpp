@@ -60,5 +60,33 @@ namespace Graphics
 			onResize();
 		return 0;
 	}
+
+	LRESULT Window::KeyDown(UINT msg, WPARAM wParam, LPARAM lParam, BOOL & handled)
+	{
+		if (OnKeyDown)
+			return OnKeyDown(msg, wParam, lParam, handled);
+		return 0;
+	}
+
+	LRESULT Window::KeyUp(UINT msg, WPARAM wParam, LPARAM lParam, BOOL & handled)
+	{
+		if (OnKeyUp)
+			return OnKeyUp(msg, wParam, lParam, handled);
+		return 0;
+	}
+
+	LRESULT Window::SysKeyDown(UINT msg, WPARAM wParam, LPARAM lParam, BOOL & handled)
+	{
+		if (OnSystemKeyDown)
+			return OnSystemKeyDown(msg, wParam, lParam, handled);
+		return 0;
+	}
+
+	LRESULT Window::SysKeyUp(UINT msg, WPARAM wParam, LPARAM lParam, BOOL & handled)
+	{
+		if (OnSystemKeyUp)
+			return OnSystemKeyUp(msg, wParam, lParam, handled);
+		return 0;
+	}
 }
 

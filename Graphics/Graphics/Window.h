@@ -6,6 +6,9 @@
 
 namespace Graphics
 {
+	//message, wParam, lParam, handled
+	typedef LRESULT(*WinFunc)(UINT, WPARAM, LPARAM, BOOL&);
+
 	class Window : public CWindowImpl<Window, CWindow, CWinTraits<WS_OVERLAPPEDWINDOW | WS_VISIBLE>>
 	{
 	public:
@@ -14,6 +17,10 @@ namespace Graphics
 		unsigned int Height;
 		HWND Handle;
 		bool PostQuitWhenDestroyed;
+		WinFunc OnKeyDown;
+		WinFunc OnKeyUp;
+		WinFunc OnSystemKeyDown;
+		WinFunc OnSystemKeyUp;
 
 		Window(const wchar_t* name, bool postQuitWhenDestroyed = true);
 		~Window();
@@ -25,6 +32,10 @@ namespace Graphics
 			MESSAGE_HANDLER(WM_SIZE, Resize)
 			MESSAGE_HANDLER(WM_EXITSIZEMOVE, ResizeExit)
 			MESSAGE_HANDLER(WM_DISPLAYCHANGE, DisplayChange)
+			MESSAGE_HANDLER(WM_KEYDOWN, KeyDown)
+			MESSAGE_HANDLER(WM_KEYUP, KeyUp)
+			MESSAGE_HANDLER(WM_SYSKEYDOWN, SysKeyDown)
+			MESSAGE_HANDLER(WM_SYSKEYUP, SysKeyUp)
 		END_MSG_MAP()
 
 		void(*onResize)();
@@ -34,5 +45,9 @@ namespace Graphics
 		LRESULT Resize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT DisplayChange(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT ResizeExit(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT KeyDown(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT KeyUp(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT SysKeyDown(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT SysKeyUp(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 	};
 }

@@ -26,5 +26,7 @@ PixelShaderInput main(VertexShaderInput input)
 	pos = mul(viewProjection, pos);
 	output.position = pos;
 	output.color = input.color;
+	output.UV.x = input.position.x + 0.5;
+	output.UV.y = input.position.y + 0.5;
 	return output;
 }

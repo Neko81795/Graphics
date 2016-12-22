@@ -5,7 +5,7 @@
 
 namespace Graphics
 {
-	Texture::Texture(Graphics::GraphicsEngine& graphics, std::wstring path) : Graphics(graphics), Path(path)
+	Texture::Texture(Graphics::GraphicsEngine& graphics, std::wstring path) : Graphics(graphics), Path(path), Length(0)
 	{
 		ULONG_PTR gdiplustoken;
 		Gdiplus::GdiplusStartupInput inp;
@@ -24,10 +24,11 @@ namespace Graphics
 
 		if (Gdiplus::Ok == bitmap.LockBits(&rect, Gdiplus::ImageLockModeRead, Format, &data))
 		{
-			size_t len = data.Height * std::abs(data.Stride);
-			Bytes.resize(len);
+			Stride = static_cast<UINT>(std::abs(data.Stride));
+			Length = data.Height * Stride;
+			Bytes.resize(Length);
 
-			memcpy(&Bytes[0], data.Scan0, len);
+			memcpy(&Bytes[0], data.Scan0, Length);
 
 			bitmap.UnlockBits(&data);
 		}
@@ -35,40 +36,57 @@ namespace Graphics
 		{
 			throw std::exception("NOT SURE WHAT HAPPEN");
 		}
+
+		if (Format == PixelFormat24bppRGB)
+		{
+			
+		}
 	}
 
 	void Texture::Create()
 	{
-		D3D11_TEXTURE2D_DESC1 texDesc{};
+		//create texture
+		D3D11_TEXTURE2D_DESC texDesc{};
 		texDesc.Width = Width;
 		texDesc.Height = Height;
 		texDesc.MipLevels = 1;
 
-		if (Format == PixelFormat32bppARGB)
-		{
+		texDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
-			texDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UINT;
-			texDesc.ArraySize = 4 * texDesc.Width * texDesc.Height;
-		}
-		else
-		{
-			throw std::exception("FORMAT UNSUPORTED");
-		}
-
-		texDesc.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
+		texDesc.ArraySize = 1;
+		texDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
 		texDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
 		texDesc.CPUAccessFlags = 0;
 		texDesc.MiscFlags = 0;
+		texDesc.SampleDesc.Count = 1;
 
 		D3D11_SUBRESOURCE_DATA data{};
-		data.pSysMem = &Bytes[0];
+		data.pSysMem = Bytes.data();
+		data.SysMemPitch = Stride;
 
-		Graphics.Device->CreateTexture2D1(&texDesc, &data, Tex.ReleaseAndGetAddressOf());
+		HRESULT hr = Graphics.Device->CreateTexture2D(&texDesc, &data, Tex.ReleaseAndGetAddressOf());
 
+		if (FAILED(hr))
+			return;
+		
+		//create shader resource
+		Graphics.Device->CreateShaderResourceView(Tex.Get(), nullptr, Resource.ReleaseAndGetAddressOf());
+
+		//create sampler
+		D3D11_SAMPLER_DESC samplerDesc{};
+
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
+
+		Graphics.Device->CreateSamplerState(&samplerDesc, Sampler.ReleaseAndGetAddressOf());
 	}
 
 	void Texture::Use()
 	{
+		Graphics.DeviceContext->PSSetSamplers(0, 1, Sampler.GetAddressOf());
+
+		Graphics.DeviceContext->PSSetShaderResources(0, 1, Resource.GetAddressOf());
 	}
 }
 

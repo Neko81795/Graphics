@@ -26,9 +26,13 @@ namespace Graphics
 		void Use();
 	private:
 		GraphicsEngine& Graphics;
-		ComPtr<ID3D11Texture2D1> Tex;
+		ComPtr<ID3D11Texture2D> Tex;
+		ComPtr<ID3D11SamplerState> Sampler;
+		ComPtr<ID3D11ShaderResourceView> Resource;
 		UINT Width;
 		UINT Height;
+		UINT Stride;
+		size_t Length;
 		Gdiplus::PixelFormat Format;
 		std::wstring Path;
 		std::vector<BYTE> Bytes;

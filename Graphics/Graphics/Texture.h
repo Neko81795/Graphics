@@ -37,10 +37,6 @@ namespace Graphics
 		std::wstring Path;
 		std::vector<BYTE> Bytes;
 		
-		
-		
-
-
 		Texture& operator=(const Texture& other) = delete;
 	};
 }

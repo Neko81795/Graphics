@@ -33,7 +33,7 @@ namespace Graphics
 
 	void Camera::SetLook(Vector4 look)
 	{
-		Look = -look.Normalize();
+		Look = look.Normalize();
 		CreateCameraViewMatrix();
 		auto& mat = CameraBuffer.GetDataForWrite();
 		mat.ViewProjection = mat.View * Projection;

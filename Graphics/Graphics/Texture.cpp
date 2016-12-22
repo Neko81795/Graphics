@@ -7,6 +7,7 @@ namespace Graphics
 {
 	Texture::Texture(Graphics::GraphicsEngine& graphics, std::wstring path) : Graphics(graphics), Path(path), Length(0)
 	{
+		//start er up
 		ULONG_PTR gdiplustoken;
 		Gdiplus::GdiplusStartupInput inp;
 		Gdiplus::GdiplusStartup(&gdiplustoken, &inp, nullptr);
@@ -15,12 +16,20 @@ namespace Graphics
 		if (bitmap.GetLastStatus() == Gdiplus::Status::InvalidParameter)
 			throw std::exception("Failed to load image");
 
+		//get image info
 		Width = bitmap.GetWidth();
 		Height = bitmap.GetHeight();
+		Gdiplus::PixelFormat Format = bitmap.GetPixelFormat();
+
+		//convert to ARGB if needed
+		if (Format != PixelFormat32bppARGB)
+			bitmap.ConvertFormat(PixelFormat32bppARGB, Gdiplus::DitherType::DitherTypeNone, Gdiplus::PaletteType::PaletteTypeCustom, nullptr, 0);
 		Format = bitmap.GetPixelFormat();
 
+		//get the data
 		Gdiplus::Rect rect(0, 0, static_cast<int>(Width), static_cast<int>(Height));
 		Gdiplus::BitmapData data;
+
 
 		if (Gdiplus::Ok == bitmap.LockBits(&rect, Gdiplus::ImageLockModeRead, Format, &data))
 		{

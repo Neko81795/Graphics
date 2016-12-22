@@ -3,9 +3,8 @@
 #pragma warning(push, 0)
 #include <d3d11_4.h>
 #include <wrl.h>
+#define GDIPVER 0x0110
 #include <gdiplus.h>
-#include <gdiplusbase.h>
-#include <gdiplusheaders.h>
 #include <string>
 #include <vector>
 #pragma comment(lib, "Gdiplus.lib")
@@ -33,7 +32,6 @@ namespace Graphics
 		UINT Height;
 		UINT Stride;
 		size_t Length;
-		Gdiplus::PixelFormat Format;
 		std::wstring Path;
 		std::vector<BYTE> Bytes;
 		

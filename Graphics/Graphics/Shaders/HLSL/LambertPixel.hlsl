@@ -4,5 +4,7 @@ SamplerState Sampler : register(s0);
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
-	return input.color * Color.Sample(Sampler, input.UV);
+	float4 color = input.color * Color.Sample(Sampler, input.UV);
+	clip(color.a - 0.01);
+	return color;
 }

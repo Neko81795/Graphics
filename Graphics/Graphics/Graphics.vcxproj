@@ -26,6 +26,7 @@
     <ClInclude Include="GraphicsEngine.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Shaders\Shader.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Vector4.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -35,6 +36,7 @@
     <ClCompile Include="GraphicsEngine.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Shaders\Shader.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vector4.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>

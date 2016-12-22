@@ -21,6 +21,9 @@ namespace Graphics
 		WinFunc OnKeyUp;
 		WinFunc OnSystemKeyDown;
 		WinFunc OnSystemKeyUp;
+		WinFunc OnMouseScroll;
+		WinFunc OnMouseButton;
+		WinFunc OnMouseMove;
 
 		Window(const wchar_t* name, bool postQuitWhenDestroyed = true);
 		~Window();
@@ -36,6 +39,16 @@ namespace Graphics
 			MESSAGE_HANDLER(WM_KEYUP, KeyUp)
 			MESSAGE_HANDLER(WM_SYSKEYDOWN, SysKeyDown)
 			MESSAGE_HANDLER(WM_SYSKEYUP, SysKeyUp)
+			MESSAGE_HANDLER(WM_MOUSEWHEEL, Scroll)
+			MESSAGE_HANDLER(WM_RBUTTONDOWN, MouseButton)
+			MESSAGE_HANDLER(WM_LBUTTONDOWN, MouseButton)
+			MESSAGE_HANDLER(WM_MBUTTONDOWN, MouseButton)
+			MESSAGE_HANDLER(WM_XBUTTONDOWN, MouseButton)
+			MESSAGE_HANDLER(WM_RBUTTONUP, MouseButton)
+			MESSAGE_HANDLER(WM_LBUTTONUP, MouseButton)
+			MESSAGE_HANDLER(WM_MBUTTONUP, MouseButton)
+			MESSAGE_HANDLER(WM_XBUTTONUP, MouseButton)
+			MESSAGE_HANDLER(WM_MOUSEMOVE, MouseMove)
 		END_MSG_MAP()
 
 		void(*onResize)();
@@ -45,9 +58,13 @@ namespace Graphics
 		LRESULT Resize(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT DisplayChange(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT ResizeExit(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+
 		LRESULT KeyDown(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT KeyUp(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT SysKeyDown(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 		LRESULT SysKeyUp(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT Scroll(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT MouseButton(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
+		LRESULT MouseMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL& handled);
 	};
 }

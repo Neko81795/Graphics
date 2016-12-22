@@ -88,5 +88,26 @@ namespace Graphics
 			return OnSystemKeyUp(msg, wParam, lParam, handled);
 		return 0;
 	}
+
+	LRESULT Window::Scroll(UINT msg, WPARAM wParam, LPARAM lParam, BOOL & handled)
+	{
+		if (OnMouseScroll)
+			return OnMouseScroll(msg, wParam, lParam, handled);
+		return 0;
+	}
+
+	LRESULT Window::MouseButton(UINT msg, WPARAM wParam, LPARAM lParam, BOOL & handled)
+	{
+		if (OnMouseButton)
+			return OnMouseButton(msg, wParam, lParam, handled);
+		return 0;
+	}
+
+	LRESULT Window::MouseMove(UINT msg, WPARAM wParam, LPARAM lParam, BOOL & handled)
+	{
+		if (OnMouseMove)
+			return OnMouseMove(msg, wParam, lParam, handled);
+		return 0;
+	}
 }
 

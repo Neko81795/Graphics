@@ -111,7 +111,7 @@ namespace Graphics
 			right.X, right.Y, -right.Z, 0,
 			up.X, up.Y, -up.Z, 0,
 			Look.X, Look.Y, -Look.Z, 0,
-			-Position.X, -Position.Y, Position.Z, 1
+			Position.X, Position.Y, Position.Z, 1
 		);
 
 		mat.View = DirectX::XMMatrixInverse(

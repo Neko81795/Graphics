@@ -28,7 +28,7 @@ namespace Graphics
 
 		operator float*();
 		operator const float*() const;
-		Color& operator=(Color& rhs);
+		Color& operator=(const Color& rhs);
 		float operator[](int i);
 	};
 }

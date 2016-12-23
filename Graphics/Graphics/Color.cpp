@@ -23,7 +23,7 @@ namespace Graphics
 		memcpy(RGBA, color.RGBA, sizeof(RGBA));
 	}
 
-	Color & Color::operator=(Color & rhs)
+	Color & Color::operator=(const Color & rhs)
 	{
 		R = rhs.R;
 		G = rhs.G;

@@ -73,6 +73,31 @@ namespace Graphics
 			break;
 		}
 	}
+
+	void Shader::UnUse()
+	{
+		switch (Type)
+		{
+		case Graphics::Compute:
+			Graphics.DeviceContext->CSSetShader(nullptr, nullptr, 0);
+			break;
+		case Graphics::Domain:
+			Graphics.DeviceContext->DSSetShader(nullptr, nullptr, 0);
+			break;
+		case Graphics::Geometry:
+			Graphics.DeviceContext->GSSetShader(nullptr, nullptr, 0);
+			break;
+		case Graphics::Hull:
+			Graphics.DeviceContext->HSSetShader(nullptr, nullptr, 0);
+			break;
+		case Graphics::Pixel:
+			Graphics.DeviceContext->PSSetShader(nullptr, nullptr, 0);
+			break;
+		case Graphics::Vertex:
+			Graphics.DeviceContext->VSSetShader(nullptr, nullptr, 0);
+			break;
+		}
+	}
 }
 
 

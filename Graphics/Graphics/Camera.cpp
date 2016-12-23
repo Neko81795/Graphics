@@ -97,8 +97,8 @@ namespace Graphics
 		auto& mat = CameraBuffer.GetDataForWrite();
 
 		Vector4 up(0, 1, 0, 0);
-		Vector4 right = Look.Cross(up);
-		up = right.Cross(Look);
+		Vector4 right = Look.Cross(up).Normalize();
+		up = right.Cross(Look).Normalize();
 		
 		/*mat.View = DirectX::XMMatrixSet(
 			right.X, up.X, Look.X, Position.X,
@@ -108,10 +108,10 @@ namespace Graphics
 		);*/
 
 		mat.View = DirectX::XMMatrixSet(
-			right.X, right.Y, right.Z, 0,
-			up.X, up.Y, up.Z, 0,
-			Look.X, Look.Y, Look.Z, 0,
-			-Position.X, -Position.Y, -Position.Z, 1
+			right.X, right.Y, -right.Z, 0,
+			up.X, up.Y, -up.Z, 0,
+			Look.X, Look.Y, -Look.Z, 0,
+			-Position.X, -Position.Y, Position.Z, 1
 		);
 
 		mat.View = DirectX::XMMatrixInverse(

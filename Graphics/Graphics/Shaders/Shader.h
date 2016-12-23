@@ -30,6 +30,7 @@ namespace Graphics
 
 		bool Create();
 		void Use();
+		void UnUse();
 	private:
 		ComPtr<ID3D11ComputeShader> ComputeShader;
 		ComPtr<ID3D11DomainShader> DomainShader;

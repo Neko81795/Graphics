@@ -26,7 +26,6 @@ namespace Graphics
 		ComPtr<ID3D11InputLayout> Layout;
 
 		Mesh(GraphicsEngine& graphics, const std::vector<Vertex>& vertices, const std::vector<unsigned short>& indices);
-		~Mesh();
 
 		void Use() const;
 		bool Create(const Shader& shader);

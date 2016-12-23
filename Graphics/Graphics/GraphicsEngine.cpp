@@ -122,7 +122,6 @@ namespace Graphics
 		ViewPort.MaxDepth = 1.0f;
 		ViewPort.MinDepth = 0.0f;
 		DeviceContext->RSSetViewports(1, &ViewPort);
-		DeviceContext->OMSetBlendState(BlendState.Get(), nullptr, 0xffffffff);
 	}
 
 	void GraphicsEngine::SetBlendMode(BlendMode blendMode)
@@ -155,6 +154,7 @@ namespace Graphics
 		blendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 		Device->CreateBlendState1(&blendStateDesc, BlendState.ReleaseAndGetAddressOf());
+		DeviceContext->OMSetBlendState(BlendState.Get(), nullptr, 0xffffffff);
 	}
 
 	void GraphicsEngine::Draw(const Mesh& mesh)

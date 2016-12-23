@@ -15,13 +15,6 @@ namespace Graphics
 	{
 	}
 
-	Mesh::~Mesh()
-	{
-		VertBuffer.Reset();
-		IndexBuffer.Reset();
-		Layout.Reset();
-	}
-
 	void Mesh::Use() const
 	{
 		if (!Created)
@@ -44,7 +37,7 @@ namespace Graphics
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 		dc->IASetVertexBuffers(0, 1, VertBuffer.GetAddressOf(), &stride, &offset);
-		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		//16-bit Unsigned integers (unsigned short)
 		dc->IASetIndexBuffer(IndexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R16_UINT, 0);
 	}

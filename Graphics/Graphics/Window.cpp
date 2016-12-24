@@ -9,7 +9,8 @@ namespace Graphics
 
 	Window::~Window()
 	{
-		DestroyWindow();
+		if(m_hWnd)
+			DestroyWindow();
 	}
 
 	LRESULT Window::Paint(UINT /*msg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & /*handled*/)
